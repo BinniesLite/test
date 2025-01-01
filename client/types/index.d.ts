@@ -206,12 +206,16 @@ declare global {
     coursePrice: string;
     courseStatus: boolean;
   }
-  
-interface ErrorData {
-  message?: string;
-}
-}
 
+  interface ErrorData {
+    message?: string;
+  }
 
+  interface ApiResponse {
+    data?: {
+      message?: string;
+    };
+  }
+}
 
 export {};

@@ -24,7 +24,8 @@ const customBaseQuery = async (
   });
 
   try {
-    const result = await baseQuery(args, api, extraOptions);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await baseQuery(args, api, extraOptions) as any;
 
     if (result.error) {
       const errorData = result.error.data as ErrorData;
