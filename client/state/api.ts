@@ -27,7 +27,7 @@ const customBaseQuery = async (
     const result = await baseQuery(args, api, extraOptions);
 
     if (result.error) {
-      const errorData = result.error.data;
+      const errorData = result.error.data as ErrorData;
       const errorMessage = errorData?.message || result.error.status.toString() || "An error occured";
       
       toast.error(`Error: ${errorMessage}`);
