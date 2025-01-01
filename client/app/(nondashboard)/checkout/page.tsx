@@ -3,7 +3,8 @@
 import Loading from '@/components/loading';
 import { useUser } from '@clerk/nextjs'
 import WizardStepper from '@/components/wizard-stepper';
-import React from 'react'
+import { useEffect, useState } from 'react';
+
 import { useCheckoutNavigation } from '@/hooks/useCheckoutNavigation';
 
 import CheckoutDetailsPage from './components/checkout-details';
@@ -11,10 +12,16 @@ import PaymentPage from './components/payment';
 import CompletionPage from './components/completion';
 
 const CheckoutPage = () => {
+    const [isMounted, setIsMounted] = useState(false);
     const { isLoaded } = useUser();
     const { checkoutStep } = useCheckoutNavigation();
 
-    if (!isLoaded) return <Loading/>
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
+    if (!isLoaded) return <Loading/>;
 
     const renderStep = () => {
         switch (checkoutStep) {
