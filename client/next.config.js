@@ -17,6 +17,9 @@ const nextConfig = {
       },
     ],
   },
+  generateBuildId: async () => {
+    return 'build'
+  }
 };
 
 module.exports = nextConfig;
