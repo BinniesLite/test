@@ -1,3 +1,6 @@
+"use client"
+
+
 import React, { useEffect, useState } from 'react'
 import { Appearance, loadStripe, StripeElementsOptions } from '@stripe/stripe-js'
 import { useCreateStripePaymentIntentMutation } from '@/state/api';

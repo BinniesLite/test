@@ -1,3 +1,5 @@
+"use client"
+
 import Loading from '@/components/loading';
 import { useCurrentCourse } from '@/hooks/useCurrentCourse';
 import { useSearchParams } from 'next/navigation';
