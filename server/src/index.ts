@@ -33,25 +33,10 @@ export const clerkClient = createClerkClient({
 if (!isProduction) {
   dynamoose.aws.ddb.local("http://localhost:8000");
 } else {
-  // AWS.config.update({
-  //   accessKeyId: process.env.AWS_ACCESS_KEY,
-  //   secretAccessKey: process.env.AWS_SECRET_KEY,
-  //   region: process.env.AWS_REGION,
-  // });
-  
-
-  // Production DynamoDB configuration
-  // if (!process.env.AWS_ACCESS_KEY || !process.env.AWS_SECRET_ACCESS_KEY) {
-  //   throw new Error("AWS credentials are not configured");
-  // }
-
-  // Using the DynamoDB client configuration
   const ddb = new dynamoose.aws.ddb.DynamoDB({
     region: process.env.AWS_REGION || "us-east-2",
-   
   });
-
-
+W
   dynamoose.aws.ddb.set(ddb);
 }
 
@@ -85,9 +70,9 @@ app.use("/users/clerk", requireAuth(), userClerkRoute)
 app.use("/transactions", requireAuth(), transactionRoute)
 app.use("/users/course-progress", requireAuth(), userCourseProgressRoute)
 
-// app.get("/", (req, res) => {
-//   res.send("Hello World");
-// });
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
 
 /* SERVER */
 const port = process.env.PORT || 3000;

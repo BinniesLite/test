@@ -110,9 +110,9 @@ app.use("/courses", courseRoute_1.default);
 app.use("/users/clerk", (0, express_2.requireAuth)(), clerkRoute_1.default);
 app.use("/transactions", (0, express_2.requireAuth)(), transactionRoute_1.default);
 app.use("/users/course-progress", (0, express_2.requireAuth)(), userCourseProgressRoute_1.default);
-// app.get("/", (req, res) => {
-//   res.send("Hello World");
-// });
+app.get("/", (req, res) => {
+    res.send("Hello World");
+});
 /* SERVER */
 const port = process.env.PORT || 3000;
 if (!isProduction) {
