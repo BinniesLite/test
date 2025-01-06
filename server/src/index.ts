@@ -63,8 +63,21 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+
 app.use(clerkMiddleware());
+
+if (isProduction) {
+  app.use(cors({
+    origin: "https://master.d3rpgzidlvp4o7.amplifyapp.com",
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key', 'X-Amz-Security-Token'],
+    credentials: true // If you're using cookies or authentication headers
+  }));
+  
+}
+else {
+  app.use(cors());
+}
 
 // ROUTES
 app.use("/courses", courseRoute);

@@ -32,11 +32,20 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clerkClient = void 0;
+exports.handler = exports.clerkClient = void 0;
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const body_parser_1 = __importDefault(require("body-parser"));
@@ -45,7 +54,8 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const dynamoose = __importStar(require("dynamoose"));
 const express_2 = require("@clerk/express");
-const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const serverless_http_1 = __importDefault(require("serverless-http"));
+const seedDynamodb_1 = __importDefault(require("./seed/seedDynamodb"));
 // ROUTE IMPORT
 const courseRoute_1 = __importDefault(require("./routes/courseRoute"));
 const clerkRoute_1 = __importDefault(require("./routes/clerkRoute"));
@@ -61,22 +71,18 @@ if (!isProduction) {
     dynamoose.aws.ddb.local("http://localhost:8000");
 }
 else {
-    aws_sdk_1.default.config.update({
-        accessKeyId: process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_SECRET_KEY,
-        region: process.env.AWS_REGION,
-    });
+    // AWS.config.update({
+    //   accessKeyId: process.env.AWS_ACCESS_KEY,
+    //   secretAccessKey: process.env.AWS_SECRET_KEY,
+    //   region: process.env.AWS_REGION,
+    // });
     // Production DynamoDB configuration
-    if (!process.env.AWS_ACCESS_KEY || !process.env.AWS_SECRET_ACCESS_KEY) {
-        throw new Error("AWS credentials are not configured");
-    }
+    // if (!process.env.AWS_ACCESS_KEY || !process.env.AWS_SECRET_ACCESS_KEY) {
+    //   throw new Error("AWS credentials are not configured");
+    // }
     // Using the DynamoDB client configuration
     const ddb = new dynamoose.aws.ddb.DynamoDB({
         region: process.env.AWS_REGION || "us-east-2",
-        credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        },
     });
     dynamoose.aws.ddb.set(ddb);
 }
@@ -87,8 +93,18 @@ app.use(helmet_1.default.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use((0, morgan_1.default)("common"));
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: false }));
-app.use((0, cors_1.default)());
 app.use((0, express_2.clerkMiddleware)());
+if (isProduction) {
+    app.use((0, cors_1.default)({
+        origin: "https://master.d3rpgzidlvp4o7.amplifyapp.com",
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key', 'X-Amz-Security-Token'],
+        credentials: true // If you're using cookies or authentication headers
+    }));
+}
+else {
+    app.use((0, cors_1.default)());
+}
 // ROUTES
 app.use("/courses", courseRoute_1.default);
 app.use("/users/clerk", (0, express_2.requireAuth)(), clerkRoute_1.default);
@@ -99,6 +115,23 @@ app.use("/users/course-progress", (0, express_2.requireAuth)(), userCourseProgre
 // });
 /* SERVER */
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+if (!isProduction) {
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
+// aws production environment
+const serverlessApp = (0, serverless_http_1.default)(app);
+const handler = (event, context) => __awaiter(void 0, void 0, void 0, function* () {
+    if (event.action === "seed") {
+        yield (0, seedDynamodb_1.default)();
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ message: "Data seeded successfully" }),
+        };
+    }
+    else {
+        return serverlessApp(event, context);
+    }
 });
+exports.handler = handler;
