@@ -16,6 +16,12 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    // Disable runtime JS modifications
+    runtime: 'nodejs',
+    // Enable server components
+    serverComponents: true,
+  },
   generateBuildId: async () => {
     return 'build'
   }
