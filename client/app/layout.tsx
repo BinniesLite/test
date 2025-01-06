@@ -22,6 +22,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  console.log("HEllo wworld");
+  console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
   return (
     <ClerkProvider>
       <html lang="en">
